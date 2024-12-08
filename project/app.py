@@ -88,3 +88,45 @@ def weather_score(temp, humid, wind_speed, rain_prob):
     except Exception as e:
         print(f'Ошибка при вычислении погодного балла: {e}')
         return "Данные о погоде не найдены, проверьте корректность в названиях городов..."
+
+
+
+@app.route('/', methods=['GET', 'POST'])
+def weather_analysis():
+    result = None
+    if request.method == 'POST':
+        from_location = request.form['from_location']
+        to_location = request.form['to_location']
+
+        if not from_location or not to_location:
+            result = "Пожалуйста, введите названия обоих городов."
+        else:
+            loc1_key = get_location_key(from_location)
+            loc2_key = get_location_key(to_location)
+
+            if loc1_key and loc2_key:
+                weather1 = get_weather(loc1_key)
+                weather2 = get_weather(loc2_key)
+
+                forecast1 = get_weather_info(weather1)
+                forecast2 = get_weather_info(weather2)
+
+                if forecast1 and forecast2:
+                    temp1, humid1, wind_speed1, rain_prob1 = forecast1
+                    temp2, humid2, wind_speed2, rain_prob2 = forecast2
+
+                    res1 = weather_score(temp1, humid1, wind_speed1, rain_prob1)
+                    res2 = weather_score(temp2, humid2, wind_speed2, rain_prob2)
+
+                    result = (f'Начальная точка: {res1}<br>'
+                              f'Конечная точка: {res2}')
+                else:
+                    result = "Не удалось получить данные о погоде."
+            else:
+                result = "Не удалось найти указанные локации."
+
+    return render_template('locations.html', result=result)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
