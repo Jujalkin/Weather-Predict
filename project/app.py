@@ -51,3 +51,40 @@ def get_weather(location_key):
     except requests.exceptions.RequestException as e:
         print(f'Ошибка при запросе погоды: {e}')
         return None
+
+
+
+def get_weather_info(weather_json):
+    if weather_json:
+        temp = weather_json['Temperature']['Value']
+        humid = weather_json['RelativeHumidity']
+        wind_speed = weather_json['Wind']['Speed']['Value']
+        rain_prob = weather_json['RainProbability']
+        return temp, humid, wind_speed, rain_prob
+    else:
+        return None
+
+
+def weather_score(temp, humid, wind_speed, rain_prob):
+    try:
+        temp_text = ''
+        if temp < 0: temp_text = 'Брр...А там прохладно(... '
+        if temp > 35: temp_text = 'Ну и жарень! '
+
+        humid_text = ''
+        if humid > 85: humid_text = 'Банька-парилка! '
+
+        wind_text = ''
+        if wind_speed > 50: wind_text = 'Тебя сдует! '
+
+        rain_text = ''
+        if rain_prob > 70: rain_text = 'Очень-очень вероятно, что будет дождик) '
+
+        if len(temp_text + humid_text + wind_text + rain_text) == 0:
+            return 'Погода отличная! Можешь собираться в дорогу! '
+        else:
+            return temp_text + humid_text + wind_text + rain_text + 'Ты точно уверен, что не хочешь посидеть под пледиком ДОМА?)'
+
+    except Exception as e:
+        print(f'Ошибка при вычислении погодного балла: {e}')
+        return "Данные о погоде не найдены, проверьте корректность в названиях городов..."
