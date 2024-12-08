@@ -28,3 +28,26 @@ def get_location_key(location):
     except requests.exceptions.RequestException as e:
         print(f'Ошибка при запросе локации: {e}')
         return None
+
+
+
+def get_weather(location_key):
+    weather_url = f'http://dataservice.accuweather.com/forecasts/v1/hourly/1hour/{location_key}'
+    params = {
+        'apikey': API_KEY,
+        'language': 'ru-ru',
+        'details': 'true',
+        'metric': 'true'
+    }
+
+    try:
+        weather_response = requests.get(weather_url, params=params)
+        weather_response.raise_for_status()
+        weather_data = weather_response.json()
+        if weather_data:
+            return weather_data[0]
+        else:
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f'Ошибка при запросе погоды: {e}')
+        return None
